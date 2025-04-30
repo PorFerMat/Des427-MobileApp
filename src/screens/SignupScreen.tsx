@@ -1,48 +1,64 @@
 import { useState } from 'react';
-import { Button, TextInput, View, Text, StyleSheet } from 'react-native';
-import { signUp } from '../services/auth/auth';
+import { Alert, Button, TextInput, View, StyleSheet } from 'react-native';
+import { signUp } from '@/services/auth/auth';
 
 export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [handle, setHandle] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
+    if (!email || !password || !handle) {
+      Alert.alert('Error', 'Please fill all fields');
+      return;
+    }
+
+    setLoading(true);
     try {
       await signUp(email, password, handle);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed');
+      // Signup successful - navigation handled elsewhere
+    } catch (error) {
+      let message = 'Signup failed. Please try again.';
+      if (error.message === 'email-used') {
+        message = 'This email is already registered';
+      } else if (error.message === 'handle-taken') {
+        message = 'This username is already taken';
+      } else if (error.message === 'weak-password') {
+        message = 'Password must be at least 6 characters';
+      }
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
         placeholder="Password"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
       <TextInput
-        style={styles.input}
-        placeholder="Handle"
+        placeholder="Username"
         value={handle}
         onChangeText={setHandle}
         autoCapitalize="none"
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      <Button title="Sign Up" onPress={handleSignup} />
+      <Button 
+        title={loading ? "Creating Account..." : "Create Account"} 
+        onPress={handleSignup} 
+        disabled={loading}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create(styles); // Reuse same styles as LoginScreen

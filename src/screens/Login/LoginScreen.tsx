@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, TextInput, View, Text, StyleSheet } from 'react-native';
-import { login } from '../services/auth/auth';
+// Adjust based on actual file location
+import { login } from '../../services/auth/auth';
 
 export default function LoginScreen({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState('');

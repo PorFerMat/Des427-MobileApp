@@ -1,65 +1,46 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, db, storage } from '../firebase';
-import { runTransaction, doc, setDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../firebase';
+import { runTransaction, doc } from 'firebase/firestore';
 
 export const signUp = async (email: string, password: string, handle: string) => {
-  const handleRef = doc(db, 'handles', handle);
-  
-  await runTransaction(db, async (transaction) => {
-    const handleDoc = await transaction.get(handleRef);
-    if (handleDoc.exists()) throw new Error('Handle already taken');
+  try {
+    const handleRef = doc(db, 'handles', handle.toLowerCase());
     
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
-    
-    transaction.set(doc(db, 'users', uid), {
-      email,
-      handle,
-      following: [],
-      followers: [],
+    await runTransaction(db, async (transaction) => {
+      // Check handle availability
+      const handleDoc = await transaction.get(handleRef);
+      if (handleDoc.exists()) {
+        throw new Error('handle-taken');
+      }
+
+      // Create auth user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
+
+      // Create user document
+      transaction.set(doc(db, 'users', uid), {
+        email,
+        handle: handle.toLowerCase(),
+        following: [],
+        followers: [],
+        createdAt: new Date().toISOString(),
+      });
+
+      // Reserve handle
+      transaction.set(handleRef, { uid });
     });
     
-    transaction.set(handleRef, { uid });
-  });
-};
-
-export const login = async (email: string, password: string) => {
-  return signInWithEmailAndPassword(auth, email, password);
-};
-
-export const uploadImage = async (uri: string) => {
-  const user = auth.currentUser;
-  if (!user) throw new Error('Not authenticated');
-  
-  const storageRef = ref(storage, `posts/${user.uid}/${Date.now()}`);
-  const response = await fetch(uri);
-  const blob = await response.blob();
-  
-  await uploadBytes(storageRef, blob);
-  return getDownloadURL(storageRef);
-};
-
-export const followUser = async (targetHandle: string) => {
-  const user = auth.currentUser;
-  if (!user) throw new Error('Not authenticated');
-  
-  const handleDoc = await getDoc(doc(db, 'handles', targetHandle));
-  if (!handleDoc.exists()) throw new Error('User not found');
-  
-  await updateDoc(doc(db, 'users', user.uid), {
-    following: arrayUnion(handleDoc.data().uid)
-  });
-};
-
-export const unfollowUser = async (targetHandle: string) => {
-  const user = auth.currentUser;
-  if (!user) throw new Error('Not authenticated');
-  
-  const handleDoc = await getDoc(doc(db, 'handles', targetHandle));
-  if (!handleDoc.exists()) throw new Error('User not found');
-  
-  await updateDoc(doc(db, 'users', user.uid), {
-    following: arrayRemove(handleDoc.data().uid)
-  });
+  } catch (error) {
+    let errorCode = 'signup-failed';
+    if (error instanceof Error) {
+      if (error.message.includes('auth/email-already-in-use')) {
+        errorCode = 'email-used';
+      } else if (error.message.includes('auth/weak-password')) {
+        errorCode = 'weak-password';
+      } else if (error.message.includes('handle-taken')) {
+        errorCode = 'handle-taken';
+      }
+    }
+    throw new Error(errorCode);
+  }
 };
