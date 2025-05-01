@@ -1,11 +1,14 @@
 import { Camera } from 'expo-camera';
+import type { Camera as CameraType } from 'expo-camera';
 import { useState, useEffect, useRef } from 'react';
-import { Button, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { uploadImage } from '../services/auth/auth';
 
 export default function CameraScreen() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const cameraRef = useRef<Camera>(null);
+  const cameraRef = useRef<any>(null); //ใช้ any ไปก่อนหากต้องการให้ code ทำงาน แล้วค่อย refine type ทีหลัง
+
+
 
   useEffect(() => {
     (async () => {
@@ -25,10 +28,12 @@ export default function CameraScreen() {
   if (hasPermission === false) return <Text>No camera access</Text>;
 
   return (
-    <Camera style={StyleSheet.absoluteFill} ref={cameraRef}>
+    <View style={StyleSheet.absoluteFill}>
+      <Camera style={StyleSheet.absoluteFill} ref={cameraRef} />
       <TouchableOpacity style={styles.captureButton} onPress={takePicture} />
-    </Camera>
+    </View>
   );
+  
 }
 
 const styles = StyleSheet.create({
