@@ -36,6 +36,7 @@ export default function SignupScreen() {
   return (
     <View style={styles.container}>
       <TextInput
+        style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
@@ -43,12 +44,14 @@ export default function SignupScreen() {
         keyboardType="email-address"
       />
       <TextInput
+        style={styles.input}
         placeholder="Password"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
       <TextInput
+        style={styles.input}
         placeholder="Username"
         value={handle}
         onChangeText={setHandle}
@@ -62,3 +65,20 @@ export default function SignupScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    backgroundColor: '#fff',
+  },
+  input: {
+    height: 48,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+});
