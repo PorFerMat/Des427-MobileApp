@@ -18,19 +18,24 @@ export default function SignupScreen() {
     try {
       await signUp(email, password, handle);
       // Signup successful - navigation handled elsewhere
-    } catch (error) {
+    } catch (err) {
       let message = 'Signup failed. Please try again.';
-      if (error.message === 'email-used') {
-        message = 'This email is already registered';
-      } else if (error.message === 'handle-taken') {
-        message = 'This username is already taken';
-      } else if (error.message === 'weak-password') {
-        message = 'Password must be at least 6 characters';
+      if (err instanceof Error) {
+        switch (err.message) {
+          case 'email-used':
+            message = 'This email is already registered';
+            break;
+          case 'handle-taken':
+            message = 'This username is already taken';
+            break;
+          case 'weak-password':
+            message = 'Password must be at least 6 characters';
+            break;
+        }
       }
       Alert.alert('Error', message);
-    } finally {
-      setLoading(false);
     }
+    
   };
 
   return (
