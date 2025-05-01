@@ -1,6 +1,8 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { runTransaction, doc } from 'firebase/firestore';
+import { FirebaseError } from 'firebase/app';
+
 
 export const signUp = async (email: string, password: string, handle: string) => {
   try {
@@ -30,17 +32,31 @@ export const signUp = async (email: string, password: string, handle: string) =>
       transaction.set(handleRef, { uid });
     });
     
-  } catch (error) {
-    let errorCode = 'signup-failed';
-    if (error instanceof Error) {
-      if (error.message.includes('auth/email-already-in-use')) {
-        errorCode = 'email-used';
-      } else if (error.message.includes('auth/weak-password')) {
-        errorCode = 'weak-password';
-      } else if (error.message.includes('handle-taken')) {
-        errorCode = 'handle-taken';
-      }
+  // } catch (error) {
+  //   let errorCode = 'signup-failed';
+  //   if (error instanceof Error) {
+  //     if (error.message.includes('auth/email-already-in-use')) {
+  //       errorCode = 'email-used';
+  //     } else if (error.message.includes('auth/weak-password')) {
+  //       errorCode = 'weak-password';
+  //     } else if (error.message.includes('handle-taken')) {
+  //       errorCode = 'handle-taken';
+  //     }
+  //   }
+  //   throw new Error(errorCode);
+  // }
+} catch (error) {
+  let errorCode = 'signup-failed';
+  if (error instanceof FirebaseError) {
+    if (error.code === 'auth/email-already-in-use') {
+      errorCode = 'email-used';
+    } else if (error.code === 'auth/weak-password') {
+      errorCode = 'weak-password';
     }
-    throw new Error(errorCode);
+  } else if (error instanceof Error && error.message === 'handle-taken') {
+    errorCode = 'handle-taken';
   }
+  throw new Error(errorCode);
+}
+
 };
