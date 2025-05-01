@@ -3,6 +3,12 @@ import { auth, db } from '../firebase';
 import { runTransaction, doc } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 
+// ใน auth.ts
+export const uploadImage = async (uri: string) => {
+  console.log('Uploading image:', uri);
+  // TODO: เชื่อม Firebase Storage หรือ Supabase Storage ที่นี่
+};
+
 
 export const signUp = async (email: string, password: string, handle: string) => {
   try {
