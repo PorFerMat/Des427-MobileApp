@@ -1,4 +1,5 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { runTransaction, doc } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
@@ -65,4 +66,8 @@ export const signUp = async (email: string, password: string, handle: string) =>
   throw new Error(errorCode);
 }
 
+};
+
+export const login = async (email: string, password: string) => {
+  return await signInWithEmailAndPassword(auth, email, password);
 };
