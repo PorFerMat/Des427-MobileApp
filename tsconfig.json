@@ -6,11 +6,26 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["jest", "node"],
     "jsx": "react-native",
+    "moduleResolution": "node",
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "types": [
+      "jest",
+      "node",
+      "expo"
+    ]
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*",
+    "**/*.spec.ts"
+  ]
 }

@@ -9,6 +9,16 @@ module.exports = function (api) {
         safe: false,
         allowUndefined: false,
       }],
+      [
+        'module-resolver',
+        {
+          root: ['./'],
+          alias: {
+            '@': './src',
+          },
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        },
+      ],
     ],
   };
 };
