@@ -2,10 +2,10 @@
 npm install -g expo-cli
 expo install @react-navigation/native @react-navigation/native-stack react-native-screens react-native-safe-area-context
 
-**If you still get permissions errors (especially on Mac/Linux):**
+# If you still get permissions errors (especially on Mac/Linux):**
 sudo npm install -g expo-cli
 npx expo install @react-navigation/native @react-navigation/native-stack react-native-screens react-native-safe-area-context
-**Verify Expo CLI installation:**
+# Verify Expo CLI installation:
 expo --version
 # Should show something like: 51.0.0
 
