@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: des427-backend
+    env: node
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: FIREBASE_SERVICE_ACCOUNT_KEY
+        value: <จะเติมค่าตอน deploy บนเว็บ Render>
