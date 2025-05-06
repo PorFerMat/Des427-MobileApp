@@ -1,19 +1,24 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginScreen from '@/screens/Login/LoginScreen';
-import SignupScreen from '@/screens/SignupScreen';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+// import LoginScreen from '@/screens/Login/LoginScreen';
+// import SignupScreen from '@/screens/SignupScreen';
+import FeedScreen from '@/screens/FeedScreen';
+import PostScreen from '@/screens/PostScreen';
+import ProfileScreen from '@/screens/ProfileScreen';
 
-export type AuthStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-};
+// export type AuthStackParamList = {
+//   Login: undefined;
+//   Signup: undefined;
+// };
 
-const Stack = createNativeStackNavigator<AuthStackParamList>();
+const Tab = createBottomTabNavigator();
 
 export default function AuthNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
-    </Stack.Navigator>
+    <Tab.Navigator>
+    <Tab.Screen name="Feed" component={FeedScreen} />
+    <Tab.Screen name="Post" component={PostScreen} />
+    <Tab.Screen name="Profile" component={ProfileScreen} />
+  </Tab.Navigator>
+    
   );
 }
