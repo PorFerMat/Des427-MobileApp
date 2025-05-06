@@ -3,6 +3,17 @@ import { db, storage } from '../services/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, Timestamp, getDocs, query, where, orderBy } from 'firebase/firestore';
 
+export const getFeed = async () => {
+    const postsRef = collection(db, 'posts');
+    const q = query(postsRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+  
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  };
+
 export const uploadPost = async (uid: string, imageUri: string, caption: string) => {
   try {
     // แปลงรูปเป็น blob
