@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import userRoutes from '../routes/userRoutes';
+import authRoutes from '../routes/auth';
 
 const app = express();
 app.use(cors());
@@ -12,8 +13,11 @@ app.get('/', (req, res) => {
 
 app.use('/api', userRoutes); // endpoint = /api/signup
 
-app.listen(3000, () => {
-  console.log('Server started on http://localhost:3000');
+app.use('/auth', authRoutes);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+console.log('Server running on port ${PORT}');
 });
 
 export default app;
