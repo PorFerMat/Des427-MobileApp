@@ -1,15 +1,27 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "es2017",
+    "module": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-native",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     },
-    "types": ["jest", "node"],
-    "jsx": "react-native",
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    "types": ["node"],  // ✅ ลบ jest ถ้าไม่ได้ใช้
+    "typeRoots": ["./node_modules/@types", "./src/@types"]  // ✅ ไม่มีคอมม่าหลังสุด
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
