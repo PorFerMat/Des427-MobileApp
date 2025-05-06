@@ -4,6 +4,11 @@ import { auth } from '@/services/firebase';
 
 const AuthContext = createContext<{ currentUser: User | null }>({ currentUser: null });
 
+interface AuthContextType {
+  currentUser: User | null;
+}
+
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
