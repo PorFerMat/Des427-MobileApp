@@ -7,7 +7,7 @@ import AppNavigator from './src/navigation/AppNavigator';
 import AuthNavigator from './src/navigation/AuthNavigator';
 
 function RootNavigator() {
-  const { user, loading } = useAuth();
+  const { currentUser, loading } = useAuth();
 
   if (loading) {
     return (
@@ -17,17 +17,16 @@ function RootNavigator() {
     );
   }
 
-  return (
-    <NavigationContainer>
-      {user ? <AppNavigator /> : <AuthNavigator />}
-    </NavigationContainer>
-  );
+  return currentUser ? <AppNavigator /> : <AuthNavigator />;
+;
 }
 
 export default function App() {
   return (
     <AuthProvider>
-      <RootNavigator />
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
     </AuthProvider>
   );
 }
