@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react';
 import { Text, View, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/services/firebase';
-import { useAuth } from '../contexts/AuthContext'; // ใช้ path นี้ตามที่คุณมี
+import { useAuth } from '../contexts/AuthContext';
+import { useRoute } from '@react-navigation/native';
 
 export default function ProfileScreen() {
-  const { currentUser } = useAuth(); // ดึง uid จาก context
+  const { currentUser } = useAuth();
+  const route = useRoute();
+  const { uid } = route.params as { uid: string }; // ดึง uid จาก route params
+
   const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!currentUser?.uid) return;
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, 'users', uid);
       const userSnap = await getDoc(userRef);
 
       if (userSnap.exists()) {
@@ -20,10 +23,10 @@ export default function ProfileScreen() {
     };
 
     fetchProfile();
-  }, [currentUser]);
+  }, [uid]);
 
   if (!userData) {
-    return <ActivityIndicator />;
+    return <ActivityIndicator style={{ marginTop: 20 }} />;
   }
 
   return (
@@ -31,10 +34,10 @@ export default function ProfileScreen() {
       {userData.avatarUrl && (
         <Image source={{ uri: userData.avatarUrl }} style={styles.avatar} />
       )}
-      <Text style={styles.name}>{userData.handle}</Text>
+      <Text style={styles.name}>@{userData.handle}</Text>
       <Text>{userData.bio || 'No bio'}</Text>
-      <Text>Followers: {userData.followers.length}</Text>
-      <Text>Following: {userData.following.length}</Text>
+      <Text>Followers: {userData.followers?.length || 0}</Text>
+      <Text>Following: {userData.following?.length || 0}</Text>
     </View>
   );
 }
