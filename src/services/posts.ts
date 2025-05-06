@@ -1,7 +1,7 @@
 // src/services/posts.ts
 import { db, storage } from '../services/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, getDocs, query, where, orderBy } from 'firebase/firestore';
 
 export const uploadPost = async (uid: string, imageUri: string, caption: string) => {
   try {
@@ -32,3 +32,15 @@ export const uploadPost = async (uid: string, imageUri: string, caption: string)
     throw error;
   }
 };
+
+export const fetchFeed = async (following: string[]) => {
+    if (following.length === 0) return [];
+  
+    const q = query(
+      collection(db, 'posts'),
+      where('uid', 'in', following),
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  };
