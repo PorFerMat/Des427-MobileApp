@@ -6,21 +6,13 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-<<<<<<< Updated upstream
-=======
-    "types": ["node"],
->>>>>>> Stashed changes
     "jsx": "react-native",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "types": [
-      "jest",
-      "node",
-      "expo"
-    ]
+    "types": ["jest", "node", "expo"]
   },
   "include": [
     "**/*.ts",
