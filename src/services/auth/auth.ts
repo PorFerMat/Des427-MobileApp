@@ -1,9 +1,63 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { runTransaction, doc } from 'firebase/firestore';
+import { runTransaction, doc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 import api from '../api';
+
+/**
+ * สร้างบัญชีผู้ใช้ใหม่ใน Firebase Auth + Firestore
+ */
+export const signUp = async (email: string, password: string, handle: string) => {
+  try {
+    const handleRef = doc(db, 'handles', handle.toLowerCase());
+
+    await runTransaction(db, async (transaction) => {
+      // 1. เช็คว่า handle ซ้ำไหม
+      const handleDoc = await transaction.get(handleRef);
+      if (handleDoc.exists()) {
+        throw new Error('handle-taken');
+      }
+
+      // 2. สร้างผู้ใช้ใน Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
+
+      // 3. บันทึก user ลง Firestore
+      transaction.set(doc(db, 'users', uid), {
+        uid,
+        email,
+        handle: handle.toLowerCase(),
+        followers: [],
+        following: [],
+        createdAt: new Date().toISOString(),
+      });
+
+      // 4. จอง handle ไว้
+      transaction.set(handleRef, { uid });
+    });
+
+  } catch (error) {
+    let errorCode = 'signup-failed';
+    if (error instanceof FirebaseError) {
+      if (error.code === 'auth/email-already-in-use') {
+        errorCode = 'email-used';
+      } else if (error.code === 'auth/weak-password') {
+        errorCode = 'weak-password';
+      }
+    } else if (error instanceof Error && error.message === 'handle-taken') {
+      errorCode = 'handle-taken';
+    }
+    throw new Error(errorCode);
+  }
+};
+
+/**
+ * Login user ด้วย Firebase
+ */
+export const login = async (email: string, password: string) => {
+  return await signInWithEmailAndPassword(auth, email, password);
+};
 
 // // ใน auth.ts
 // export const uploadImage = async (uri: string) => {
@@ -74,33 +128,33 @@ import api from '../api';
 // };
 
 // สมัครผู้ใช้ใหม่ผ่าน backend API
-export const signUp = async (email: string, password: string, handle: string) => {
-  try {
-    const res = await api.post('/auth/signup', { email, password, handle });
-    return res.data;
-  } catch (error: any) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
-    }
-    throw new Error('signup-failed');
-  }
-};
+// export const signUp = async (email: string, password: string, handle: string) => {
+//   try {
+//     const res = await api.post('/auth/signup', { email, password, handle });
+//     return res.data;
+//   } catch (error: any) {
+//     if (error.response?.data?.error) {
+//       throw new Error(error.response.data.error);
+//     }
+//     throw new Error('signup-failed');
+//   }
+// };
 
-// ล็อกอินผู้ใช้ผ่าน backend API
-export const login = async (email: string, password: string) => {
-  try {
-    const res = await api.post('/auth/login', { email, password });
-    return res.data;
-  } catch (error: any) {
-    if (error.response?.data?.error) {
-      throw new Error(error.response.data.error);
-    }
-    throw new Error('login-failed');
-  }
-};
+// // ล็อกอินผู้ใช้ผ่าน backend API
+// export const login = async (email: string, password: string) => {
+//   try {
+//     const res = await api.post('/auth/login', { email, password });
+//     return res.data;
+//   } catch (error: any) {
+//     if (error.response?.data?.error) {
+//       throw new Error(error.response.data.error);
+//     }
+//     throw new Error('login-failed');
+//   }
+// };
 
-// สำหรับอัปโหลดภาพ (ยังคง TODO)
-export const uploadImage = async (uri: string) => {
-  console.log('Uploading image:', uri);
-  // จะเชื่อม Supabase หรือ Firebase Storage ผ่าน backend หรือ client ก็ได้
-};
+// // สำหรับอัปโหลดภาพ (ยังคง TODO)
+// export const uploadImage = async (uri: string) => {
+//   console.log('Uploading image:', uri);
+//   // จะเชื่อม Supabase หรือ Firebase Storage ผ่าน backend หรือ client ก็ได้
+// };
