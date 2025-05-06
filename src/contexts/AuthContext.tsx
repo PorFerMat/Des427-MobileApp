@@ -1,34 +1,57 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 
-type AuthContextType = {
-  user: User | null;
-  loading: boolean;
-};
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-});
+const AuthContext = createContext<{ currentUser: User | null }>({ currentUser: null });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setCurrentUser(user);
     });
-    return unsubscribe;
+
+    return () => unsubscribe();
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ currentUser }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);
+
+
+// import { createContext, useContext, useEffect, useState } from 'react';
+// import { User, onAuthStateChanged } from 'firebase/auth';
+// import { auth } from '@/services/firebase';
+
+// type AuthContextType = {
+//   user: User | null;
+//   loading: boolean;
+// };
+
+// const AuthContext = createContext<AuthContextType>({
+//   user: null,
+//   loading: true,
+// });
+
+// export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+//   const [user, setUser] = useState<User | null>(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const unsubscribe = onAuthStateChanged(auth, (user) => {
+//       setUser(user);
+//       setLoading(false);
+//     });
+//     return unsubscribe;
+//   }, []);
+
+//   return (
+//     <AuthContext.Provider value={{ user, loading }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// export const useAuth = () => useContext(AuthContext);
