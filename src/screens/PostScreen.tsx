@@ -1,8 +1,38 @@
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadPost } from '@/services/posts';
 import { useAuth } from '@/contexts/AuthContext';
+import { User, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/services/firebase';
+
+
+type AuthContextType = {
+    currentUser: User | null;
+  };
+  
+  export const AuthContext = createContext<AuthContextType>({
+    currentUser: null,
+  });
+  
+  type AuthProviderProps = {
+    children: ReactNode;
+  };
+  
+  export function AuthProvider({ children }: AuthProviderProps) {
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+  
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, setCurrentUser);
+      return unsubscribe;
+    }, []);
+  
+    return (
+      <AuthContext.Provider value={{ currentUser }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 
 export default function PostScreen() {
     const { currentUser } = useAuth();
