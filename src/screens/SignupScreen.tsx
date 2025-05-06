@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { Alert, Button, TextInput, View, StyleSheet } from 'react-native';
+import { Alert, Button, TextInput, View, StyleSheet, Text } from 'react-native';
 import { signUp } from '@/services/auth/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../services/firebase'; // << เปลี่ยน path ให้ถูกต้องตามโปรเจกต์
+
 
 export default function SignupScreen() {
   const [email, setEmail] = useState('');
